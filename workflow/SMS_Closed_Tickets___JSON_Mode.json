@@ -1,0 +1,128 @@
+{
+  "name": "SMS Closed Tickets - JSON Mode",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        240,
+        300
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "options": {
+          "fields": "summary,key,status,created,updated,assignee,project",
+          "jql": "project = SMS AND status in (CLOSED) AND updated <= 7d"
+        }
+      },
+      "id": "jira-jql",
+      "name": "Jira JQL Query",
+      "type": "n8n-nodes-base.jira",
+      "position": [
+        440,
+        300
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "N0UU0b35lep6FOS6",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3a28d010-b5a0-4213-b86b-68a2e6011802",
+              "name": "title_key",
+              "value": "={{ $json.key }}",
+              "type": "string"
+            },
+            {
+              "id": "7191f8b6-6c4b-4980-b8a1-b1d65559bdb3",
+              "name": "title",
+              "value": "={{ $json.fields.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "0806fe60-1a72-409a-a29c-32984fd6cc33",
+              "name": "status",
+              "value": "={{ $json.fields.status.name }}",
+              "type": "string"
+            },
+            {
+              "id": "6331db48-548c-43b4-9228-64cea5a3b421",
+              "name": "=assignee",
+              "value": "={{ $json.fields.assignee ? $json.fields.assignee.displayName : 'Unassigned' }}",
+              "type": "string"
+            },
+            {
+              "id": "41713344-974a-4505-8901-e686ee1b0762",
+              "name": "updated",
+              "value": "={{ $json.fields.updated }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "json-output",
+      "name": "JSON Output Format",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        640,
+        300
+      ],
+      "typeVersion": 3.3
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Jira JQL Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jira JQL Query": {
+      "main": [
+        [
+          {
+            "node": "JSON Output Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 3600,
+    "timezone": "UTC"
+  },
+  "versionId": "a0b24628-3c7b-4276-95d1-c52bef62e1af",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ec96df1429be7215d35dcbeb8240e02c42d34ac02b2c34b6352121f258499c80"
+  },
+  "id": "jhVJXdRPM1W4LDI2",
+  "tags": []
+}
